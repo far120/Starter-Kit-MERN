@@ -24,12 +24,12 @@ export default function AdminUserLogs() {
         setError(null);
         const data = await getUserLogs({
           page,
-          // limit: 5,
-          order: "desc",
+          limit: 5,
+          sort: "-createdAt",
           email: emailFilter || undefined,
         });
 
-        setLogs(data?.result || []);
+        setLogs(data?.data || []);
         setPage(data?.page || 1);
         setTotalPages(data?.totalPages || 1);
       } catch (err) {

@@ -20,8 +20,8 @@ export default function AdminDashboard() {
 
       try {
         const [usersResponse, logsResponse] = await Promise.all([
-          getUsers({ page: 1, limit: 8, order: "desc" }),
-          getUserLogs({ page: 1, limit: 6, order: "desc" }),
+          getUsers({ page: 1, limit: 8, sort: "-createdAt" }),
+          getUserLogs({ page: 1, limit: 6, sort: "-createdAt" }),
         ]);
 
         if (!mounted) {
@@ -50,8 +50,8 @@ export default function AdminDashboard() {
     };
   }, []);
 
-  const users = usersData?.result || [];
-  const logs = logsData?.result || [];
+  const users = usersData?.data || [];
+  const logs = logsData?.data || [];
 
   const adminsInCurrentList = useMemo(() => {
     return users.filter((item) => item.role === "admin").length;

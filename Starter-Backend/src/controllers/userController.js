@@ -3,6 +3,7 @@ const asynchandler = require('express-async-handler');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const logger = require('../utils/logger');
+const APIFeatures = require('../utils/ApiFeature');
 
 
 
@@ -102,7 +103,16 @@ exports.GetUsers = asynchandler(async (req, res) => {
     // res.status(200).json(users);
 
     // with pagination i want use paginate middleware and make select -password in it
-    res.status(200).json(res.paginatedResult);
+    const result = await new APIFeatures(User, req.query)
+      .filter() 
+      .sort()
+      .select()
+      .paginate({
+        defaultLimit: 10,
+        maxLimit: 50
+      })
+      .execute();
+   res.status(200).json(result);
 });
 
 /**

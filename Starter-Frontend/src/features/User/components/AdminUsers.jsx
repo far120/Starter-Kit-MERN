@@ -43,13 +43,13 @@ export default function AdminUsers() {
       const data = await getUsers({
         page,
         limit: 5,
-        order: "desc",
+        sort: "-createdAt",
         email: dataInput.email || undefined,
         username: dataInput.username || undefined,
         role: dataInput.role || undefined,
         isActive: dataInput.isActive || undefined,
       });
-      setUsers(data?.result || []);
+      setUsers(data?.data || []);
       setPage(data?.page || 1);
       setTotalPages(data?.totalPages || 1);
     } catch (err) {

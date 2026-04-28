@@ -14,12 +14,20 @@ module.exports = (Model) => async (req, res, next) => {
         const order = req.query.order === 'desc' ? -1 : 1;
 
         // ======================
-        // 📌 Filtering (Dynamic + Safe)
+        // 📌 Filtering (Safe)
         // ======================
-        const excludedFields = ['page', 'limit', 'sort', 'order', 'select'];
+        const excludedFields = ['page', 'limit', 'sort', 'order', 'select', 'populate'];
 
-        // 🔒 whitelist للفيلتر
-        const allowedFilters = ['email', 'username', 'action', 'user' , 'role' , 'isActive', 'createdAt' , 'updatedAt']; // عدل حسب الحقول المتاحة في الموديل
+        const allowedFilters = [
+            'email',
+            'username',
+            'action',
+            'user',
+            'role',
+            'isActive',
+            'createdAt',
+            'updatedAt'
+        ];
 
         let filter = {};
 
@@ -40,12 +48,13 @@ module.exports = (Model) => async (req, res, next) => {
         // 📌 Select (Projection)
         // ======================
         const forbiddenFields = ['password', '__v'];
+
         let select = '';
 
         if (req.query.select) {
             const fields = req.query.select
                 .split(',')
-                .map(f => f.trim()); // إزالة المسافات
+                .map(f => f.trim());
 
             const safeFields = fields.filter(
                 field => !forbiddenFields.includes(field)
@@ -55,15 +64,40 @@ module.exports = (Model) => async (req, res, next) => {
         }
 
         // ======================
-        // 📌 Query Execution
+        // 📌 Populate (Dynamic + Safe)
+        // ======================
+        // const allowedPopulate = ['user', 'role', 'items'];
+
+        let populateFields = [];
+
+        if (req.query.populate) {
+            populateFields = req.query.populate
+                .split(',')
+                .map(f => f.trim())
+                .filter(f => allowedPopulate.includes(f));
+        }
+
+        // ======================
+        // 📌 Build Query
+        // ======================
+        let query = Model.find(filter)
+            .select(select || '-password')
+            .sort({ [sortBy]: order })
+            .skip(skip)
+            .limit(limit);
+
+        // Apply populate
+        if (populateFields.length > 0) {
+            populateFields.forEach(field => {
+                query = query.populate(field);
+            });
+        }
+
+        // ======================
+        // 📌 Execute Query
         // ======================
         const [result, total] = await Promise.all([
-            Model.find(filter)
-                .select(select || '-password') // 🔒 حماية أساسية
-                .sort({ [sortBy]: order })
-                .skip(skip)
-                .limit(limit),
-
+            query,
             Model.countDocuments(filter)
         ]);
 
@@ -85,3 +119,4 @@ module.exports = (Model) => async (req, res, next) => {
         next(err);
     }
 };
+
