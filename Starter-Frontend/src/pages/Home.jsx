@@ -8,9 +8,17 @@ export default function Home() {
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#353d9a_0%,#2b307b_48%,#8453ad_100%)] px-4 py-10 sm:py-16">
       <section className="mx-auto w-full max-w-5xl rounded-3xl bg-[#f7f7fb] p-6 shadow-[0_24px_70px_rgba(19,23,79,0.38)] sm:p-10">
         <div className="mb-8 rounded-full bg-[#dbdbe3] p-1.5 sm:w-fit">
-          <div className="rounded-full bg-[linear-gradient(90deg,#ff6a8d_0%,#ff2f74_100%)] px-8 py-3 text-center text-base font-bold text-white shadow-[0_8px_24px_rgba(255,68,135,0.45)]">
-            Starter Kit
-          </div>
+<Link to="/">
+  <svg viewBox="0 0 680 420" width="110" height="68" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="340,38 435,90 435,194 340,246 245,194 245,90" fill="#2f3792" opacity="0.08"/>
+    <polygon points="340,50 423,98 423,186 340,234 257,186 257,98" fill="none" stroke="#2f3792" strokeWidth="2.5" opacity="0.4"/>
+    <text x="340" y="168" textAnchor="middle" fontFamily="monospace" fontSize="76" fontWeight="700" fill="#1d2146" letterSpacing="-2" opacity="0.95">MF</text>
+    <circle cx="340" cy="206" r="4" fill="#EF9F27"/>
+    <text x="340" y="278" textAnchor="middle" fontFamily="'Segoe UI', sans-serif" fontSize="21" fontWeight="500" fill="#1d2146" letterSpacing="6">MOSTAFA ELFAR</text>
+    <line x1="230" y1="293" x2="450" y2="293" stroke="#EF9F27" strokeWidth="1.5"/>
+    <text x="340" y="318" textAnchor="middle" fontFamily="'Segoe UI', sans-serif" fontSize="12.5" fontWeight="400" fill="#555a80" letterSpacing="3">MERN STACK DEVELOPER</text>
+  </svg>
+</Link>
         </div>
 
         <h1 className="mb-4 text-4xl font-extrabold tracking-wide text-[#171b3d] sm:text-5xl">

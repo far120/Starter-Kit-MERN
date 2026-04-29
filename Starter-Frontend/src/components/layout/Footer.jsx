@@ -9,9 +9,17 @@ export default function Footer() {
         
         {/* Logo / About */}
         <div>
-          <h2 className="text-white text-xl font-bold mb-3">
-            MyApp
-          </h2>
+    <Link to="/">
+  <svg viewBox="0 0 680 420" width="110" height="68" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="340,38 435,90 435,194 340,246 245,194 245,90" fill="#ffffff" opacity="0.06"/>
+    <polygon points="340,50 423,98 423,186 340,234 257,186 257,98" fill="none" stroke="#ffffff" strokeWidth="2.5" opacity="0.35"/>
+    <text x="340" y="168" textAnchor="middle" fontFamily="monospace" fontSize="76" fontWeight="700" fill="#ffffff" letterSpacing="-2" opacity="0.95">MF</text>
+    <circle cx="340" cy="206" r="4" fill="#EF9F27"/>
+    <text x="340" y="278" textAnchor="middle" fontFamily="'Segoe UI', sans-serif" fontSize="21" fontWeight="500" fill="#ffffff" letterSpacing="6">MOSTAFA ELFAR</text>
+    <line x1="230" y1="293" x2="450" y2="293" stroke="#EF9F27" strokeWidth="1.5"/>
+    <text x="340" y="318" textAnchor="middle" fontFamily="'Segoe UI', sans-serif" fontSize="12.5" fontWeight="400" fill="#a0a8e8" letterSpacing="3">MERN STACK DEVELOPER</text>
+  </svg>
+</Link>
           <p className="text-sm text-[#c4cae9]">
             Building modern web applications with clean and scalable architecture.
           </p>
