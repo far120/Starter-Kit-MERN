@@ -32,6 +32,14 @@ export default function AdminUsers() {
   const [roleValue, setRoleValue] = useState("");
   const [statusValue, setStatusValue] = useState("");
 
+  function syncPaginationResponse(data) {
+    const pagination = data?.pagination || {};
+
+    setUsers(data?.data || []);
+    setPage(pagination.page || data?.page || 1);
+    setTotalPages(pagination.totalPages || data?.totalPages || 1);
+  }
+
     // ======================
     // Fetch users
     // ======================
@@ -49,9 +57,7 @@ export default function AdminUsers() {
         role: dataInput.role || undefined,
         isActive: dataInput.isActive || undefined,
       });
-      setUsers(data?.data || []);
-      setPage(data?.page || 1);
-      setTotalPages(data?.totalPages || 1);
+      syncPaginationResponse(data);
     } catch (err) {
       setError(err);
     } finally {
@@ -113,6 +119,9 @@ export default function AdminUsers() {
     try {
       await deleteUser(targetUser._id);
       setUsers((prev) => prev.filter((item) => item._id !== targetUser._id));
+      if (users.length === 1 && page > 1) {
+        setPage((prev) => prev - 1);
+      }
       toast.success("User deleted successfully");
     } catch (err) {
       toast.error(err.message || "Failed to delete user");

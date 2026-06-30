@@ -7,12 +7,22 @@ export default function AdminUserLogs() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [totalResults, setTotalResults] = useState(0);
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   const [emailInput, setEmailInput] = useState("");
   const [emailFilter, setEmailFilter] = useState("");
+
+  function syncPaginationResponse(data) {
+    const pagination = data?.pagination || {};
+
+    setLogs(data?.data || []);
+    setPage(pagination.page || data?.page || 1);
+    setTotalPages(pagination.totalPages || data?.totalPages || 1);
+    setTotalResults(pagination.totalDocuments || data?.totalResults || 0);
+  }
 
   // ======================
   // Fetch Logs
@@ -29,9 +39,8 @@ export default function AdminUserLogs() {
           email: emailFilter || undefined,
         });
 
-        setLogs(data?.data || []);
-        setPage(data?.page || 1);
-        setTotalPages(data?.totalPages || 1);
+        syncPaginationResponse(data);
+        
       } catch (err) {
         setError(err);
       } finally {
@@ -367,9 +376,7 @@ export default function AdminUserLogs() {
           <p>
             Showing <span className="font-semibold">{logs.length}</span> logs on
             this page • Total results:{" "}
-            <span className="font-semibold">
-              {totalPages * 10} estimated
-            </span>
+            <span className="font-semibold">{totalResults}</span>
           </p>
         </div>
       </section>

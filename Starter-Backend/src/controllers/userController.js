@@ -3,7 +3,7 @@ const asynchandler = require('express-async-handler');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const logger = require('../utils/logger');
-const APIFeatures = require('../utils/ApiFeature');
+const paginate = require('../utils/paginate');
 
 
 
@@ -102,16 +102,22 @@ exports.GetUsers = asynchandler(async (req, res) => {
     // const users = await User.find().select("-password");
     // res.status(200).json(users);
 
-    // with pagination i want use paginate middleware and make select -password in it
-    const result = await new APIFeatures(User, req.query)
-      .filter() 
-      .sort()
-      .select()
-      .paginate({
-        defaultLimit: 10,
-        maxLimit: 50
-      })
-      .execute();
+// with pagination i want use paginate middleware and make select -password in it
+   const filter = {};
+if (req.query.email) filter.email = req.query.email;
+if (req.query.username) filter.username = { $regex: req.query.username, $options: "i" };
+if (req.query.role) filter.role = req.query.role;
+if (req.query.isActive !== undefined) filter.isActive = req.query.isActive === "true";
+
+const result = await paginate({
+  model: User,
+  page: req.query.page,
+  limit: req.query.limit,
+  filter,
+  sort: req.query.sort,
+  populate: req.query.populate,
+  select: "-password",
+});
    res.status(200).json(result);
 });
 

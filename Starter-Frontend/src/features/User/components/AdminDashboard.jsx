@@ -52,6 +52,8 @@ export default function AdminDashboard() {
 
   const users = usersData?.data || [];
   const logs = logsData?.data || [];
+  const usersPagination = usersData?.pagination || {};
+  const logsPagination = logsData?.pagination || {};
 
   const adminsInCurrentList = useMemo(() => {
     return users.filter((item) => item.role === "admin").length;
@@ -115,7 +117,9 @@ export default function AdminDashboard() {
               <FiUsers className="text-xl" />
             </div>
             <p className="text-sm font-semibold text-[#5a5f85]">Total Users</p>
-            <p className="mt-2 text-3xl font-black text-[#181e46]">{usersData?.totalResults || 0}</p>
+            <p className="mt-2 text-3xl font-black text-[#181e46]">
+              {usersPagination.totalDocuments || usersData?.totalResults || 0}
+            </p>
           </article>
 
           <article className="rounded-2xl border border-[#d6dcff] bg-white p-5 shadow-[0_8px_20px_rgba(56,67,139,0.12)]">
@@ -123,7 +127,9 @@ export default function AdminDashboard() {
               <FiActivity className="text-xl" />
             </div>
             <p className="text-sm font-semibold text-[#5a5f85]">Total Logs</p>
-            <p className="mt-2 text-3xl font-black text-[#181e46]">{logsData?.totalResults || 0}</p>
+            <p className="mt-2 text-3xl font-black text-[#181e46]">
+              {logsPagination.totalDocuments || logsData?.totalResults || 0}
+            </p>
           </article>
 
           <article className="rounded-2xl border border-[#d6dcff] bg-white p-5 shadow-[0_8px_20px_rgba(56,67,139,0.12)]">
