@@ -2,7 +2,7 @@ const User = require('../models/User');
 const asynchandler = require('express-async-handler');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const logger = require('../utils/logger');
+const logger = require('../config/WistonLogger');
 const paginate = require('../utils/paginate');
 
 
@@ -69,7 +69,7 @@ exports.LoginUser = asynchandler(async (req, res) => {
     }
     if(!user.isActive){
         logger.warn(`Login attempt for inactive user: ${email}`)
-        res.status(403).json({ message: "User is not active, you cannot log in" });
+        return res.status(403).json({ message: "User is not active, you cannot log in" });
     }
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '30d' });
     logger.info(`User logged in successfully: ${email}`);
@@ -95,10 +95,10 @@ exports.LogoutUser = asynchandler(async (req, res) => {
  * @desc    get all users
  * @route   GET /api/users
  * @method  GET
- * @access  private (admin)
+ * @access  private (manager)
  */
 exports.GetUsers = asynchandler(async (req, res) => {
-    logger.info(`Retrieving all users by admin: ${req.user.id}`);
+    logger.info(`Retrieving all users by manager: ${req.user.id}`);
     // const users = await User.find().select("-password");
     // res.status(200).json(users);
 
@@ -191,7 +191,7 @@ exports.ResetMyPassword = asynchandler(async (req, res) => {
  * @desc    delete user
  * @route   DELETE /api/users/
  * @method  DELETE
- * @access  private (admin)
+ * @access  private (manager)
  */
 exports.DeleteUser = asynchandler(async (req, res) => {
     await User.findByIdAndDelete(req.params.userId);
@@ -203,12 +203,12 @@ exports.DeleteUser = asynchandler(async (req, res) => {
  * @desc    change user role
  * @route   PUT /api/users/:userId/role
  * @method  patch
- * @access  private (admin)
+ * @access  private (manager)
  * */
 exports.ChangeUserRole = asynchandler(async (req, res) => {
     const { userId } = req.params;
     const { role } = req.body;
-    if (!['user', 'admin'].includes(role)) {
+    if (!['user', 'admin' , 'manager' ].includes(role)) {
         logger.warn(`Attempt to update role with invalid role: ${role}`);
         res.status(400).json({ message: "Invalid role" });
         return;
@@ -227,7 +227,7 @@ exports.ChangeUserRole = asynchandler(async (req, res) => {
  * @desc   activate user
  * @route   PATCH /api/users/activate/:userId
  * @method  PATCH
- *  @access  private (admin)
+ *  @access  private (manager)
  *  
  * */
 exports.ActivateUser = asynchandler(async (req, res) => {

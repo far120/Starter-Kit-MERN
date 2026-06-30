@@ -70,6 +70,7 @@ export default function AuthProvider({ children }) {
       isBootstrapping,
       isAuthenticated: Boolean(token && user),
       isAdmin: user?.role === "admin",
+      isManager: user?.role === "manager",
       login,
       register,
       logout,

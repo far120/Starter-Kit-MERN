@@ -1,6 +1,6 @@
 const UserLog = require('../models/UserLogs');
 
-module.exports = (options = {}) => {
+function userLogsMiddleware(options = {}) {
   return (req, res, next) => {
     const start = Date.now();
 
@@ -28,3 +28,4 @@ module.exports = (options = {}) => {
     next();
   };
 };
+module.exports = userLogsMiddleware;

@@ -6,10 +6,10 @@ import NotFound from "../pages/NotFound";
 import Register from "../features/auth/components/Register";
 import Profile from "../features/User/components/profile";
 import { ProtectedRoute, PublicOnlyRoute } from "../utils/ProtectRoute";
-import AdminUsers from "../features/User/components/AdminUsers";
-import AdminUserLogs from "../features/User/components/AdminUserLogs";
+import ManagerUsers from "../features/User/components/managerUsers";
+import ManagerUserLogs from "../features/User/components/managerUserLogs";
 import ResetPassword from "../features/User/components/ResetPassword";
-import AdminDashboard from "../features/User/components/AdminDashboard";
+import ManagerDashboard from "../features/User/components/managerDashboard";
 
 
 export const router = createBrowserRouter([
@@ -55,26 +55,26 @@ export const router = createBrowserRouter([
         )
       },
       {
-        path: "admin/dashboard",
+        path: "manager/dashboard",
         element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <AdminDashboard />
+          <ProtectedRoute allowedRoles={["manager"]}>
+            <ManagerDashboard />
           </ProtectedRoute>
         )
       },
       {
-        path: "admin/users",
+        path: "manager/users",
         element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <AdminUsers />
+          <ProtectedRoute allowedRoles={["manager"]}>
+            <ManagerUsers />
           </ProtectedRoute>
         )
       },
       {
-        path: "admin/logs",
+        path: "manager/logs",
         element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <AdminUserLogs />
+          <ProtectedRoute allowedRoles={["manager"]}>
+            <ManagerUserLogs />
           </ProtectedRoute>
         )
       }

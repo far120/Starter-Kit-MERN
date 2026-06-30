@@ -10,7 +10,7 @@ import {
   getUsers,
 } from "../services/userApi";
 
-export default function AdminUsers() {
+export default function ManagerUsers() {
   const { user: currentUser } = useAuth();
   const toast = useToast();
 
@@ -40,13 +40,16 @@ export default function AdminUsers() {
     setTotalPages(pagination.totalPages || data?.totalPages || 1);
   }
 
-  async function fetchUsers(nextPage = page) {
+    // ======================
+    // Fetch users
+    // ======================
+  useEffect(() => {
+    async function fetchUsers() { 
     setLoading(true);
     setError(null);
-
     try {
       const data = await getUsers({
-        page: nextPage,
+        page,
         limit: 5,
         sort: "-createdAt",
         email: dataInput.email || undefined,
@@ -54,43 +57,49 @@ export default function AdminUsers() {
         role: dataInput.role || undefined,
         isActive: dataInput.isActive || undefined,
       });
-
       syncPaginationResponse(data);
     } catch (err) {
       setError(err);
     } finally {
       setLoading(false);
     }
+    
   }
-
-    // ======================
-    // Fetch users
-    // ======================
-  useEffect(() => {
-    fetchUsers(page);
+    fetchUsers();
   }, [page, dataInput]);
 
   
-  async function handleRoleChange(targetUser) {
-    const nextRole = targetUser.role === "admin" ? "user" : "admin";
-    setActionLoadingUserId(targetUser._id);
+  async function handleRoleChange(targetUser, nextRole) {
+  setActionLoadingUserId(targetUser._id);
 
-    try {
-      await changeUserRole(targetUser._id, nextRole);
-      await fetchUsers(page);
-      toast.success(`Role updated to ${nextRole}`);
-    } catch (err) {
-      toast.error(err.message || "Failed to update role");
-    } finally {
-      setActionLoadingUserId("");
-    }
+  try {
+    await changeUserRole(targetUser._id, nextRole);
+
+    setUsers((prev) =>
+      prev.map((item) =>
+        item._id === targetUser._id
+          ? { ...item, role: nextRole }
+          : item
+      )
+    );
+
+    toast.success(`Role updated to ${nextRole}`);
+  } catch (err) {
+    toast.error(err.message || "Failed to update role");
+  } finally {
+    setActionLoadingUserId("");
   }
+}
 
   async function handleActivationToggle(targetUser) {
     setActionLoadingUserId(targetUser._id);
     try {
       await activateUser(targetUser._id);
-      await fetchUsers(page);
+      setUsers((prev) =>
+        prev.map((item) =>
+          item._id === targetUser._id ? { ...item, isActive: !item.isActive } : item
+        )
+      );
       toast.success(
         targetUser.isActive ? "User deactivated" : "User activated"
       );
@@ -112,8 +121,10 @@ export default function AdminUsers() {
     setActionLoadingUserId(targetUser._id);
     try {
       await deleteUser(targetUser._id);
-      const nextPage = users.length === 1 && page > 1 ? page - 1 : page;
-      await fetchUsers(nextPage);
+      setUsers((prev) => prev.filter((item) => item._id !== targetUser._id));
+      if (users.length === 1 && page > 1) {
+        setPage((prev) => prev - 1);
+      }
       toast.success("User deleted successfully");
     } catch (err) {
       toast.error(err.message || "Failed to delete user");
@@ -166,7 +177,7 @@ export default function AdminUsers() {
       <section className="mx-auto w-full max-w-6xl rounded-3xl bg-[#f7f7fb] p-6 shadow-[0_24px_70px_rgba(19,23,79,0.38)] sm:p-10">
         <div className="mb-8 rounded-full bg-[#dbdbe3] p-1.5 sm:w-fit">
           <div className="rounded-full bg-[linear-gradient(90deg,#ff6a8d_0%,#ff2f74_100%)] px-8 py-3 text-center text-base font-bold text-white shadow-[0_8px_24px_rgba(255,68,135,0.45)]">
-            Admin Users Management
+            manager Users Management
           </div>
         </div>
 
@@ -176,7 +187,7 @@ export default function AdminUsers() {
 
         {/* <section className="bg-white rounded-2xl shadow-lg ring-1 ring-slate-200 overflow-hidden"> */}
           {/* 🔍 Search Bar */}
-          <div className="mb-6 rounded-2xl border border-slate-200 bg-linear-to-r from-slate-50 to-blue-50 p-6">
+          <div className="mb-6 rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50 p-6">
             <form onSubmit={handleApplyFilter} className="flex flex-col gap-4 lg:flex-row lg:items-end">
               <div className="grid flex-1 grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
                 <div className="flex flex-col gap-1">
@@ -210,7 +221,7 @@ export default function AdminUsers() {
                   >
                     <option value="">All roles</option>
                     <option value="user">User</option>
-                    <option value="admin">Admin</option>
+                    <option value="manager">manager</option>
                   </select>
                 </div>
 
@@ -230,7 +241,7 @@ export default function AdminUsers() {
 
               <button
                 type="submit"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-linear-to-r from-indigo-600 to-indigo-700 px-6 py-3 font-semibold text-white shadow-md transition-all hover:from-indigo-700 hover:to-indigo-800 hover:shadow-lg active:scale-95 lg:whitespace-nowrap"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-3 font-semibold text-white shadow-md transition-all hover:from-indigo-700 hover:to-indigo-800 hover:shadow-lg active:scale-95 lg:whitespace-nowrap"
               >
                 <svg
                   className="w-4 h-4"
@@ -287,7 +298,7 @@ export default function AdminUsers() {
 
         <div className="overflow-x-auto rounded-2xl border border-[#d7dcf2] bg-white shadow-lg">
           <table className="min-w-full text-sm">
-            <thead className="sticky top-0 bg-linear-to-r from-[#eef1ff] to-[#e8ecff] text-left text-[#2f3478]">
+            <thead className="sticky top-0 bg-gradient-to-r from-[#eef1ff] to-[#e8ecff] text-left text-[#2f3478]">
               <tr>
                 <th className="px-6 py-4 font-bold">Username</th>
                 <th className="px-6 py-4 font-bold">Email</th>
@@ -325,21 +336,25 @@ export default function AdminUsers() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-2 justify-center">
-                        <button
-                          type="button"
-                          onClick={() => handleRoleChange(item)}
-                          disabled={actionBusy || isCurrentUser}
-                          className="rounded-lg bg-linear-to-r from-[#2f3792] to-[#3d3fa5] hover:from-[#252d7a] hover:to-[#32348c] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:shadow-lg transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-                        >
-                          {item.role === "admin" ? "Make User" : "Make Admin"}
-                        </button>
+                        <div className="flex flex-wrap gap-2 justify-center">
+                      <div className="flex gap-2">
+                          <select
+                            value={item.role}
+                            onChange={(e) => handleRoleChange(item, e.target.value)}
+                            disabled={actionBusy || isCurrentUser}
+                            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm focus:border-[#3d3fa5] focus:outline-none focus:ring-2 focus:ring-[#3d3fa5] disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100 hover:border-gray-400 transition-colors"
+                          >
+                          <option value="user">User</option>
+                          <option value="manager">Manager</option>
+                          <option value="admin">Admin</option>
+                        </select>
+  </div>
 
                         <button
                           type="button"
                           onClick={() => handleActivationToggle(item)}
                           disabled={actionBusy || isCurrentUser}
-                          className="rounded-lg bg-linear-to-r from-[#6f52c9] to-[#7d5fb8] hover:from-[#5e456e] hover:to-[#6b4da6] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:shadow-lg transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+                          className="rounded-lg bg-gradient-to-r from-[#6f52c9] to-[#7d5fb8] hover:from-[#5e456e] hover:to-[#6b4da6] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:shadow-lg transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
                         >
                           {item.isActive ? "Deactivate" : "Activate"}
                         </button>
@@ -348,7 +363,7 @@ export default function AdminUsers() {
                           type="button"
                           onClick={() => handleDelete(item)}
                           disabled={actionBusy || isCurrentUser}
-                          className="rounded-lg bg-linear-to-r from-[#d94e5b] to-[#c53a56] hover:from-[#bf3f52] hover:to-[#b02c48] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:shadow-lg transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+                          className="rounded-lg bg-gradient-to-r from-[#d94e5b] to-[#c53a56] hover:from-[#bf3f52] hover:to-[#b02c48] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:shadow-lg transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
                         >
                           Delete
                         </button>
@@ -370,7 +385,7 @@ export default function AdminUsers() {
           </table>
         </div>
 
-        <div className="mt-8 flex items-center justify-between gap-3 px-6 py-6 bg-linear-to-r from-[#f9faff] to-[#f0f1ff] rounded-xl border border-[#e8ecff]">
+        <div className="mt-8 flex items-center justify-between gap-3 px-6 py-6 bg-gradient-to-r from-[#f9faff] to-[#f0f1ff] rounded-xl border border-[#e8ecff]">
           <button
             type="button"
             onClick={() => setPage((prev) => Math.max(1, prev - 1))}

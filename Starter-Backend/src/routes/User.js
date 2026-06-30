@@ -33,16 +33,16 @@ router.post("/login", validate(ValidateUserlogin), userController.LoginUser);
  * @method  POST
  * @access  Public
  */
-router.post("/logout", authorize(['admin']), userController.LogoutUser);
+router.post("/logout", authandicate, userController.LogoutUser);
 
 
 /**
  * @desc    get all users
  * @route   GET /api/users
  * @method  GET
- * @access  private (admin)
+ * @access  private (manager)
  */
-router.get("/", authorize(['admin']),  userController.GetUsers);
+router.get("/", authorize(['manager']),  userController.GetUsers);
 
 /**
  * @desc    get me
@@ -72,9 +72,9 @@ router.put("/me/reset-password", authandicate, validate(ValidateResetPassword), 
  * @desc    delete user
  * @route   DELETE /api/users/delete/:userId
  * @method  DELETE
- * @access  private (admin)
+ * @access  private (manager)
  */
-router.delete("/delete/:userId", authorize(['admin']), userController.DeleteUser);
+router.delete("/delete/:userId", authorize(['manager']), userController.DeleteUser);
 
 
 
@@ -82,18 +82,18 @@ router.delete("/delete/:userId", authorize(['admin']), userController.DeleteUser
  * @desc    change user role
  * @route   PUT /api/users/:userId/role
  * @method  patch
- * @access  private (admin)
+ * @access  private (manager)
  */
-router.patch("/:userId/role", authorize(['admin']), userController.ChangeUserRole);
+router.patch("/:userId/role", authorize(['manager']), userController.ChangeUserRole);
 
 
 /**
  * @desc   activate user
  * @route   PATCH /api/users/activate/:userId
  * @method  PATCH
- * @access  private (admin)
+ * @access  private (manager)
  */
-router.patch("/activate/:userId", authorize(['admin']), userController.ActivateUser);
+router.patch("/activate/:userId", authorize(['manager']), userController.ActivateUser);
 
 
 

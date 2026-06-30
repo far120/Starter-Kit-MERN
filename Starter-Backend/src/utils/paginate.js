@@ -17,15 +17,7 @@ const paginate = async ({
   select = "",
 }) => {
 
- console.log({
-    model: model.modelName,
-    page,
-    limit,
-    filter,
-    sort,
-    populate,
-    select,
-  });
+
 
   // Convert query params to numbers
   page = Number(page);

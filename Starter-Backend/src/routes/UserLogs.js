@@ -11,9 +11,9 @@ const { GetUserLogs, getUserLogsByEmail } = require('../controllers/userlogsCont
  * @desc    get all userslogs
  * @route   GET /api/userslogs
  * @method  GET
- * @access  private (admin)
+ * @access  private (manager)
  */
-router.get("/",  authorize(['admin']), GetUserLogs);
+router.get("/",  authorize(['manager']), GetUserLogs);
 
 
 

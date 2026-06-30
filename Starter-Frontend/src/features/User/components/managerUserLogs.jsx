@@ -3,7 +3,7 @@ import Error from "../../../components/ui/Erorr";
 import Spinner from "../../../components/ui/Spinner";
 import { getUserLogs } from "../services/userApi";
 
-export default function AdminUserLogs() {
+export default function ManagerUserLogs() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

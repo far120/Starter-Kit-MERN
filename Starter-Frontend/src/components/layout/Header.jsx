@@ -5,7 +5,7 @@ import { useAuth } from "../../features/auth/hooks/useAuth";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { isAuthenticated, isAdmin, user, logout } = useAuth();
+  const { isAuthenticated, isAdmin, isManager, user, logout } = useAuth();
 
   const userName = user?.username || "User";
   const baseLinkClass = "transition hover:text-[#ffc3d4]";
@@ -61,8 +61,13 @@ export default function Header() {
                     <Link to="/admin/dashboard" className={baseLinkClass}>Dashboard Admin</Link>
                   </li>
                 )}
+                {isManager && (
+                  <li>
+                    <Link to="/manager/dashboard" className={baseLinkClass}>Dashboard Manager</Link>
+                  </li>
+                )}
                 <li className="rounded-full bg-[#2a2f68] px-3 py-1 text-xs tracking-wide text-[#d3d8ff]">
-                  {isAdmin ? "ADMIN" : "USER"}
+                  {isAdmin ? "ADMIN"  : isManager ? "MANAGER" : "USER"}
                 </li>
                 <li className="text-[#f9d4de]">{userName}</li>
                 <li>
@@ -150,6 +155,17 @@ export default function Header() {
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Dashboard Admin
+                    </Link>
+                  </li>
+                )}
+                {isManager && (
+                  <li>
+                    <Link
+                      to="/manager/dashboard"
+                      className="block rounded-lg bg-[#2a2f68] px-4 py-2 transition hover:bg-[#1f2350]"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Dashboard Manager
                     </Link>
                   </li>
                 )}

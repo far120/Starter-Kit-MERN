@@ -5,7 +5,7 @@ import Error from "../../../components/ui/Erorr";
 import Spinner from "../../../components/ui/Spinner";
 import { getUserLogs, getUsers } from "../services/userApi";
 
-export default function AdminDashboard() {
+export default function ManagerDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [usersData, setUsersData] = useState(null);
@@ -55,8 +55,8 @@ export default function AdminDashboard() {
   const usersPagination = usersData?.pagination || {};
   const logsPagination = logsData?.pagination || {};
 
-  const adminsInCurrentList = useMemo(() => {
-    return users.filter((item) => item.role === "admin").length;
+  const managersInCurrentList = useMemo(() => {
+    return users.filter((item) => item.role === "manager").length;
   }, [users]);
 
   const activeUsersInCurrentList = useMemo(() => {
@@ -88,7 +88,7 @@ export default function AdminDashboard() {
               Control Center
             </p>
             <h1 className="text-4xl font-black tracking-tight text-[#161a3d] sm:text-5xl">
-              Dashboard Admin
+              Dashboard manager
             </h1>
             <p className="mt-3 max-w-2xl text-sm text-[#4e5380] sm:text-base">
               Manage platform users and monitor activity logs from one global dashboard.
@@ -97,13 +97,13 @@ export default function AdminDashboard() {
 
           <div className="grid grid-cols-2 gap-3">
             <Link
-              to="/admin/users"
+              to="/manager/users"
               className="rounded-2xl bg-[linear-gradient(90deg,#27308b_0%,#13183f_100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(22,28,84,0.35)] transition hover:brightness-110"
             >
               Manage Users
             </Link>
             <Link
-              to="/admin/logs"
+              to="/manager/logs"
               className="rounded-2xl bg-[linear-gradient(90deg,#b4375d_0%,#7e1f3f_100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(137,39,79,0.32)] transition hover:brightness-110"
             >
               Open Logs
@@ -136,8 +136,8 @@ export default function AdminDashboard() {
             <div className="mb-3 inline-flex rounded-xl bg-[#f4f5ff] p-2 text-[#3a3e7d]">
               <FiShield className="text-xl" />
             </div>
-            <p className="text-sm font-semibold text-[#5a5f85]">Admins (current list)</p>
-            <p className="mt-2 text-3xl font-black text-[#181e46]">{adminsInCurrentList}</p>
+            <p className="text-sm font-semibold text-[#5a5f85]">managers (current list)</p>
+            <p className="mt-2 text-3xl font-black text-[#181e46]">{managersInCurrentList}</p>
           </article>
 
           <article className="rounded-2xl border border-[#d6dcff] bg-white p-5 shadow-[0_8px_20px_rgba(56,67,139,0.12)]">
@@ -154,7 +154,7 @@ export default function AdminDashboard() {
             <div className="mb-4 flex items-center justify-between gap-3">
               <h2 className="text-xl font-bold text-[#1b2257]">Latest User Activity</h2>
               <Link
-                to="/admin/logs"
+                to="/manager/logs"
                 className="text-sm font-semibold text-[#3741a1] transition hover:text-[#21276c]"
               >
                 View all logs
@@ -189,13 +189,13 @@ export default function AdminDashboard() {
             <h2 className="mb-4 text-xl font-bold text-[#1b2257]">Quick Actions</h2>
             <div className="space-y-3">
               <Link
-                to="/admin/users"
+                to="/manager/users"
                 className="block rounded-xl bg-[linear-gradient(90deg,#2f3792_0%,#1f2350_100%)] px-4 py-3 text-sm font-semibold text-white transition hover:brightness-110"
               >
-                Open Admin Users
+                Open manager Users
               </Link>
               <Link
-                to="/admin/logs"
+                to="/manager/logs"
                 className="block rounded-xl bg-[linear-gradient(90deg,#9b2f56_0%,#5b1a34_100%)] px-4 py-3 text-sm font-semibold text-white transition hover:brightness-110"
               >
                 Open User Logs

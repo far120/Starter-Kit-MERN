@@ -1,6 +1,6 @@
 const UserLog = require('../models/UserLogs');
 const asynchandler = require('express-async-handler');
-const logger = require('../utils/logger');
+const logger = require('../config/WistonLogger');
 const { filter } = require('compression');
 const user = require('../models/User');
 const paginate = require('../utils/paginate');
@@ -9,10 +9,10 @@ const paginate = require('../utils/paginate');
 /** * @desc    get all userslogs
  * @route   GET /api/userslogs
  * @method  GET
- * @access  private (admin)
+ * @access  private (manager)
  * */
 exports.GetUserLogs = asynchandler(async (req, res) => {
-    logger.info(`Retrieving all user logs by admin: ${req.user.id}`);
+    logger.info(`Retrieving all user logs by manager: ${req.user.id}`);
     // const userLogs = await UserLog.find();
     // res.status(200).json(userLogs);
 
