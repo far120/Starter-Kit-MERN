@@ -1,3 +1,5 @@
+// utils/app-error.utils.js use for creating custom error classes for your application. This can help you handle errors more effectively and provide more meaningful error messages to users or developers.
+// this is not used
 class AppError extends Error{
     constructor(message,statusCode){
     super(message);
@@ -9,3 +11,6 @@ class AppError extends Error{
 }
 
 module.exports = AppError;
+
+// Example usage:
+//  return next(new AppError("User not found", 404));
