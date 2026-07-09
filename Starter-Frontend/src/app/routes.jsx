@@ -1,21 +1,27 @@
 import { createBrowserRouter } from "react-router-dom";
-import RootRoute from "./RootRoute";
-import Login from "../features/auth/components/Login";
-import HomePage from "../pages/Home";
-import NotFound from "../pages/NotFound";
-import Register from "../features/auth/components/Register";
-import Profile from "../features/User/components/profile";
-import { ProtectedRoute, PublicOnlyRoute } from "../utils/ProtectRoute";
-import ManagerUsers from "../features/User/components/managerUsers";
-import ManagerUserLogs from "../features/User/components/managerUserLogs";
-import ResetPassword from "../features/User/components/ResetPassword";
-import ManagerDashboard from "../features/User/components/managerDashboard";
+import { lazy} from "react";
 
+import RootRoute from "./RootRoute";
+import { ProtectedRoute, PublicOnlyRoute } from "../utils/ProtectRoute";
+
+const HomePage = lazy(() => import("../pages/Home"));
+const Login = lazy(() => import("../features/auth/components/Login"));
+const Register = lazy(() => import("../features/auth/components/Register"));
+const Profile = lazy(() => import("../features/User/components/profile"));
+const ResetPassword = lazy(() => import("../features/User/components/ResetPassword"));
+const ManagerDashboard = lazy(() => import("../features/User/components/managerDashboard"));
+const ManagerUsers = lazy(() => import("../features/User/components/managerUsers"));
+const ManagerUserLogs = lazy(() => import("../features/User/components/managerUserLogs"));
+import NotFound from "../pages/NotFound";
+
+function Loader() {
+  return <h2>Loading...</h2>;
+}
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <RootRoute />,
+    element:  <RootRoute />,
     errorElement: <NotFound />,
     children: [
       {
@@ -28,7 +34,7 @@ export const router = createBrowserRouter([
           <PublicOnlyRoute>
             <Login />
           </PublicOnlyRoute>
-        )
+        ),
       },
       {
         path: "register",
@@ -36,7 +42,7 @@ export const router = createBrowserRouter([
           <PublicOnlyRoute>
             <Register />
           </PublicOnlyRoute>
-        )
+        ),
       },
       {
         path: "profile",
@@ -44,7 +50,7 @@ export const router = createBrowserRouter([
           <ProtectedRoute>
             <Profile />
           </ProtectedRoute>
-        )
+        ),
       },
       {
         path: "reset-password",
@@ -52,7 +58,7 @@ export const router = createBrowserRouter([
           <ProtectedRoute>
             <ResetPassword />
           </ProtectedRoute>
-        )
+        ),
       },
       {
         path: "manager/dashboard",
@@ -60,7 +66,7 @@ export const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={["manager"]}>
             <ManagerDashboard />
           </ProtectedRoute>
-        )
+        ),
       },
       {
         path: "manager/users",
@@ -68,7 +74,7 @@ export const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={["manager"]}>
             <ManagerUsers />
           </ProtectedRoute>
-        )
+        ),
       },
       {
         path: "manager/logs",
@@ -76,9 +82,8 @@ export const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={["manager"]}>
             <ManagerUserLogs />
           </ProtectedRoute>
-        )
-      }
-
-    ]
-  }
+        ),
+      },
+    ],
+  },
 ]);
