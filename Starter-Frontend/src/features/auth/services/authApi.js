@@ -1,14 +1,6 @@
 import api from "../../../services/api.js";
 import { LOGIN, REGISTER } from "../../../services/endpoints.js";
-
-function normalizeError(error, fallbackMessage) {
-  const apiMessage =
-    error?.response?.data?.message ||
-    error?.response?.data?.error ||
-    error?.message;
-
-  return new Error(apiMessage || fallbackMessage);
-}
+import normalizeError from "../../../services/NormalizeError.js";
 
 export async function login(email, password) {
   try {

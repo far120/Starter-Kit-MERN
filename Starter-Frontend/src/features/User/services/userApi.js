@@ -10,14 +10,7 @@ import {
     UPDATE_PROFILE,
 } from "../../../services/endpoints.js";
 
-function normalizeError(error, fallbackMessage) {
-    const apiMessage =
-        error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        error?.message;
-
-    return new Error(apiMessage || fallbackMessage);
-}
+import normalizeError from "../../../services/NormalizeError.js";
 
 
 export async function getProfile() {
