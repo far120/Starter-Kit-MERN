@@ -31,7 +31,7 @@ export default function AuthProvider({ children }) {
     return data;
   }
 
-  async function register(userData) {
+  async function Register(userData) {
     return registerRequest(userData);
   }
 
@@ -73,7 +73,7 @@ export default function AuthProvider({ children }) {
       isAdmin: user?.role === "admin",
       isManager: user?.role === "manager",
       login,
-      register,
+      Register,
       logout,
       refreshUser,
       setUser,

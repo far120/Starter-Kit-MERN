@@ -1,92 +1,30 @@
 import { Link } from "react-router-dom";
 import { useToast } from "../../../context/ToastContext";
 import {hasMinLength,  isEmail,  isEqualsToOtherValue,  isNotEmpty} from "../../../utils/validation";
-import { register } from "../services/authApi";
-import { useInput } from "../../../hooks/useInput.js";
+import { register  } from "../services/authApi";
 import { useCheckbox } from "../../../hooks/useCheckBox.js";
-import Input from "../../../components/ui/Input.jsx";
-import Reset from "../../../components/ui/Reset.jsx";
-import Submit from "../../../components/ui/Submit.jsx";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.js";
+import { useForm } from "react-hook-form";
 
 export default function Register() {
   const toast = useToast();
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { register } = useAuth();
-
-  const {
-    value: usernameValue,
-    handleInputChange: handleUsernameChange,
-    handleInputBlur: handleUsernameBlur,
-    hasError: usernameHasError,
-    handleReset: handleUsernameReset,
-  } = useInput("", (value) => isNotEmpty(value));
-
-  const {
-    value: emailValue,
-    handleInputChange: handleEmailChange,
-    handleInputBlur: handleEmailBlur,
-    hasError: emailHasError,
-    handleReset: handleEmailReset,
-  } = useInput("", (value) => isEmail(value));
-
-  const {
-    value: passwordValue,
-    handleInputChange: handlePasswordChange,
-    handleInputBlur: handlePasswordBlur,
-    hasError: passwordHasError,
-    handleReset: handlePasswordReset,
-  } = useInput("", (value) => hasMinLength(value, 6));
-
-  const {
-    value: confirmPasswordValue,
-    handleInputChange: handleConfirmPasswordChange,
-    handleInputBlur: handleConfirmPasswordBlur,
-    hasError: confirmPasswordHasError,
-    handleReset: handleConfirmPasswordReset,
-  } = useInput("",(value) => hasMinLength(value, 6) && isEqualsToOtherValue(value, passwordValue));
-
-  const {
-    value: termsAccepted,
-    handleChange: handleTermsChange,
-    hasError: termsHasError,
-    reset: handleTermsReset,
-  } = useCheckbox(false, (value) => value === true);
-
- // Validation states for enabling submit button
-  const isUsernameValid = isNotEmpty(usernameValue);
-  const isEmailValid = isEmail(emailValue);
-  const isPasswordValid = hasMinLength(passwordValue, 6);
-  const isConfirmPasswordValid = hasMinLength(confirmPasswordValue, 6) &&  isEqualsToOtherValue(confirmPasswordValue, passwordValue);
-  const canSubmit = isUsernameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid && termsAccepted;
+  const { Register  } = useAuth();
   
-  // Validation state for enabling reset button
-  const canReset = usernameValue.trim() !== "" || emailValue.trim() !== "" || passwordValue !== "" || confirmPasswordValue !== "" || termsAccepted;
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    // Final validation check before submission
-    if (!canSubmit) {
-      return;
-    }
-    setLoading(true);
+  const {register, handleSubmit, getValues, formState: { errors , isDirty , isSubmitting }, reset} = useForm({defaultValues: {username: "", email: "", password: "", confirmPassword: "", termsAccepted: false}});
+  
+  async function onsubmit(data) {
     try {
-      const userData = {
-        email: emailValue,
-        password: passwordValue,
-        username: usernameValue,
-      };
-
-      await register(userData);
+      delete data.confirmPassword; // Remove confirmPassword before sending to API
+      delete data.termsAccepted; // Remove termsAccepted before sending to API
+      await Register(data);
       toast.success("Registration successful ✅");
       navigate("/login", { replace: true });
     } catch (error) {
       toast.error(error.message || "Registration failed ❌");
-    }finally{
-      setLoading(false);
     }
   }
 
@@ -113,103 +51,129 @@ export default function Register() {
           Create Account
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="Username"
-              type="text"
-              value={usernameValue}
-              onChange={handleUsernameChange}
-              onBlur={handleUsernameBlur}
+        <form onSubmit={handleSubmit(onsubmit)} className="space-y-4">
+          <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+            Username
+          </label>
+            <input
+              {...register("username",
+                 { required: "Username is required",
+                   minLength: { value: 3, message: "Username must be at least 3 characters long" }
+                   })}
               placeholder="Choose a username"
               className={`w-full rounded-2xl border px-5 py-3 text-base outline-none transition ${
-                usernameHasError
+                errors.username
                   ? "border-red-500 bg-red-50"
                   : "border-[#d9def0] bg-[#edf2fc] focus:border-[#6f7eea]"
               }`}
             />
-    
-            <Input
-              label="Email"
-              type="email"
-              value={emailValue}
-              onChange={handleEmailChange}
-              onBlur={handleEmailBlur}
+          {errors.username && (
+            <p className="mt-2 text-sm font-medium text-red-500">{errors.username.message}</p>
+          )}
+
+
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^\S+@\S+$/i,
+                  message: "Please enter a valid email address"
+                }
+              })
+              }
               placeholder="name@example.com"
               className={`w-full rounded-2xl border px-5 py-3 text-base outline-none transition ${
-                emailHasError
+                errors.email
                   ? "border-red-500 bg-red-50"
                   : "border-[#d9def0] bg-[#edf2fc] focus:border-[#6f7eea]"
               }`}
             />
-           
-            <Input
-              label="Password"
+            {errors.email && (
+              <p className="mt-2 text-sm font-medium text-red-500">{errors.email.message}</p>
+            )}
+         
+
+           <label htmlFor="password" className="block text-sm font-medium text-gray-700"> Password </label> 
+            <input
+              {...register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters long"
+                }
+              })}
               type="password"
-              value={passwordValue}
-              onChange={handlePasswordChange}
-              onBlur={handlePasswordBlur}
               placeholder="At least 6 characters"
               className={`w-full rounded-2xl border px-5 py-3 text-base outline-none transition ${
-                passwordHasError
+                errors.password
                   ? "border-red-500 bg-red-50"
                   : "border-[#d5d9eb] bg-white shadow-[0_8px_16px_rgba(58,69,131,0.12)] focus:border-[#6f7eea]"
               }`}
             />
+            {errors.password && (
+              <p className="mt-2 text-sm font-medium text-red-500">{errors.password.message}</p>
+            )}
 
-            <Input
-              label="Confirm Password"
+
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700"> Confirm Password </label> 
+            <input
+              {...register("confirmPassword", {
+                required: "Please confirm your password",
+                 validate: (value) => value === getValues("password") || "Passwords do not match",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters long"
+                }
+              })}
               type="password"
-              value={confirmPasswordValue}
-              onChange={handleConfirmPasswordChange}
-              onBlur={handleConfirmPasswordBlur}
               placeholder="Retype your password"
               className={`w-full rounded-2xl border px-5 py-3 text-base outline-none transition ${
-                confirmPasswordHasError
+                errors.confirmPassword
                   ? "border-red-500 bg-red-50"
                   : "border-[#d5d9eb] bg-white shadow-[0_8px_16px_rgba(58,69,131,0.12)] focus:border-[#6f7eea]"
               }`}
-              error={confirmPasswordHasError ? "Passwords do not match." : null}
             />
+            {errors.confirmPassword && (
+              <p className="mt-2 text-sm font-medium text-red-500">{errors.confirmPassword.message}</p>
+            )}
           
 
           <div className="pt-1">
             <label className="flex items-center gap-3 text-sm text-[#4f5376]">
               <input
+                {...register("termsAccepted", {
+                  required: "You must accept the terms and conditions"
+                })}
                 type="checkbox"
-                checked={termsAccepted}
-                onChange={handleTermsChange}
                 className="h-4 w-4 rounded border-[#b7bfd8] text-[#393e98] focus:ring-[#626ee0]"
               />
               I agree to the terms and conditions
             </label>
-            {termsHasError && (
+            {errors.termsAccepted && (
               <p className="mt-2 text-sm font-medium text-red-500">You must accept the terms.</p>
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
-          <Reset
-            title="Reset"
-            disabled={!canReset || loading}
-            onReset={() => {
-              handleUsernameReset();
-              handleEmailReset();
-              handlePasswordReset();
-              handleConfirmPasswordReset();
-              handleTermsReset();
-              }}
-            className="rounded-2xl border border-[#cfd4ea] px-5 py-3 text-base font-semibold text-[#2a2f68] transition hover:bg-[#ecefff]"
-          />
-        
-              <Submit
-                title="Register"
-                loading={loading}
-                disabled={!canSubmit}
-                loadingLabel="Creating account..."
-                className="rounded-2xl bg-[linear-gradient(90deg,#3d3fa5_0%,#1d2146_100%)] px-5 py-3 text-base font-semibold text-white shadow-[0_12px_24px_rgba(31,35,82,0.35)] transition hover:brightness-110"
-              />
-            
-           
+            <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => reset()}
+              disabled={!isDirty || isSubmitting}
+              className="rounded-2xl border border-[#cfd4ea] px-5 py-3 text-base font-semibold text-[#2a2f68] transition hover:bg-[#ecefff] disabled:opacity-50"
+            >
+              Reset
+            </button>
+
+            <button
+              type="submit"
+              disabled={!isDirty || isSubmitting}
+              className="rounded-2xl bg-[linear-gradient(90deg,#3d3fa5_0%,#1d2146_100%)] px-5 py-3 text-base font-semibold text-white shadow-[0_12px_24px_rgba(31,35,82,0.35)] transition hover:brightness-110 disabled:opacity-50"
+            >
+              {isSubmitting ? "Registering..." : "Register"}
+            </button>
           </div>
         </form>
       </div>
