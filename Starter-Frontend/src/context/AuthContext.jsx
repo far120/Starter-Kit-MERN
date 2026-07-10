@@ -1,11 +1,12 @@
 import { createContext, useEffect, useMemo, useState } from "react";
 import { login as loginRequest, register as registerRequest } from "../features/auth/services/authApi";
 import { getProfile } from "../features/User/services/userApi";
+import getAuthToken from "../utils/auth_Token";
 
 export const AuthContext = createContext(null);
 
 export default function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem("token") || "");
+  const [token, setToken] = useState( getAuthToken() || (() => localStorage.getItem("token")) );
   const [user, setUser] = useState(null);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
 
@@ -76,9 +77,7 @@ export default function AuthProvider({ children }) {
       logout,
       refreshUser,
       setUser,
-    }),
-    [token, user, isBootstrapping]
-  );
+    }),[token, user, isBootstrapping]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -1,6 +1,7 @@
 // src/services/api.js
 import axios from "axios";
 import { API_BASE_URL } from "./endpoints";
+import getAuthToken from "../utils/auth_Token";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -11,7 +12,7 @@ const api = axios.create({
 
 // Optional: Add token automatically
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token") || "";
+  const token = getAuthToken() || (() => localStorage.getItem("token"));
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
