@@ -1,16 +1,21 @@
-import AppComponant from "./app/App"
+import AppComponant from "./app/App";
 import Providers from "./app/providers";
-// import Modal_Test from "./components/ui/Modal_Test";
+import {
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
+
+
+const queryClient = new QueryClient();
+
 function App() {
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <Providers>
         <AppComponant />
       </Providers>
-      {/* <Modal_Test />  */}
-
-    </>
-  )
+    </QueryClientProvider>
+  );
 }
 
-export default App
+export default App;

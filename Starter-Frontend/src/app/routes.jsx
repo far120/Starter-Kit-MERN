@@ -12,6 +12,7 @@ const ResetPassword = lazy(() => import("../features/User/components/ResetPasswo
 const ManagerDashboard = lazy(() => import("../features/User/components/managerDashboard"));
 const ManagerUsers = lazy(() => import("../features/User/components/managerUsers"));
 const ManagerUserLogs = lazy(() => import("../features/User/components/managerUserLogs"));
+const ReactQueryExample = lazy(() => import("../pages/react-query-example"));
 import NotFound from "../pages/NotFound";
 
 function Loader() {
@@ -81,6 +82,15 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["manager"]}>
             <ManagerUserLogs />
+          </ProtectedRoute>
+        ),
+      },
+      // React Query Example Route i make it fot learning purpose you can remove it if you want
+      {
+        path: "react-query-example",
+        element: (
+          <ProtectedRoute allowedRoles={["manager"]}>
+            <ReactQueryExample />
           </ProtectedRoute>
         ),
       },
