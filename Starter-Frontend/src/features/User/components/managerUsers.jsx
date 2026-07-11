@@ -9,6 +9,7 @@ import {
   deleteUser,
   getUsers,
 } from "../services/userApi";
+import Modal from "../../../components/ui/Modal";
 
 export default function ManagerUsers() {
   const { user: currentUser } = useAuth();
@@ -31,6 +32,7 @@ export default function ManagerUsers() {
   const [emailValue, setEmailValue] = useState("");
   const [roleValue, setRoleValue] = useState("");
   const [statusValue, setStatusValue] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null);
 
   function syncPaginationResponse(data) {
     const pagination = data?.pagination || {};
@@ -43,8 +45,7 @@ export default function ManagerUsers() {
     // ======================
     // Fetch users
     // ======================
-  useEffect(() => {
-    async function fetchUsers() { 
+        async function fetchUsers() { 
     setLoading(true);
     setError(null);
     try {
@@ -65,6 +66,7 @@ export default function ManagerUsers() {
     }
     
   }
+  useEffect(() => {
     fetchUsers();
   }, [page, dataInput]);
 
@@ -110,28 +112,35 @@ export default function ManagerUsers() {
     }
   }
 
-  async function handleDelete(targetUser) {
-    const confirmed = window.confirm(
-      `Delete user ${targetUser.username || targetUser.email}?`
-    );
-
-    if (!confirmed) {
-      return;
-    }
-    setActionLoadingUserId(targetUser._id);
-    try {
-      await deleteUser(targetUser._id);
-      setUsers((prev) => prev.filter((item) => item._id !== targetUser._id));
-      if (users.length === 1 && page > 1) {
-        setPage((prev) => prev - 1);
-      }
-      toast.success("User deleted successfully");
-    } catch (err) {
-      toast.error(err.message || "Failed to delete user");
-    } finally {
-      setActionLoadingUserId("");
-    }
-  }
+ function openDeleteModal(user) {
+   setSelectedUser(user);
+ }
+ 
+ function closeDeleteModal() {
+   setSelectedUser(null);
+ }
+ 
+ async function handleDelete() {
+   if (!selectedUser) return;
+ 
+   setActionLoadingUserId(selectedUser._id);
+ 
+   try {
+     await deleteUser(selectedUser._id);
+ 
+     const nextPage = users.length === 1 && page > 1 ? page - 1 : page;
+ 
+     await fetchUsers(nextPage);
+ 
+     closeDeleteModal();
+     toast.success("User deleted successfully");
+ 
+   } catch (err) {
+     toast.error(err.message || "Failed to delete user");
+   } finally {
+     setActionLoadingUserId("");
+   }
+ }
 
   async function handleApplyFilter(e) {
     e.preventDefault();
@@ -360,13 +369,43 @@ export default function ManagerUsers() {
                         </button>
 
                         <button
-                          type="button"
-                          onClick={() => handleDelete(item)}
-                          disabled={actionBusy || isCurrentUser}
-                          className="rounded-lg bg-gradient-to-r from-[#d94e5b] to-[#c53a56] hover:from-[#bf3f52] hover:to-[#b02c48] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:shadow-lg transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-                        >
-                          Delete
-                        </button>
+                                                 type="button"
+                                                 onClick={() => openDeleteModal(item)}
+                                                 disabled={actionBusy || isCurrentUser}
+                                                 className="rounded-lg bg-linear-to-r from-[#d94e5b] to-[#c53a56] hover:from-[#bf3f52] hover:to-[#b02c48] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:shadow-lg transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+                                               >
+                                                 Delete
+                                               </button>
+                                               <Modal
+                                                   isOpen={!!selectedUser}
+                                                   onClose={closeDeleteModal}
+                                                   title="Delete User"
+                                                 >
+                                                   <p className="text-gray-600">
+                                                     Are you sure you want to delete{" "}
+                                                     <span className="font-semibold">
+                                                       {selectedUser?.username || selectedUser?.email}
+                                                     </span>
+                                                     ?
+                                                   </p>
+                       
+                                                   <div className="mt-6 flex justify-end gap-3">
+                                                     <button
+                                                       onClick={closeDeleteModal}
+                                                       className="rounded-lg border px-4 py-2"
+                                                     >
+                                                       Cancel
+                                                     </button>
+                       
+                                                     <button
+                                                       onClick={handleDelete}
+                                                       disabled={!!actionLoadingUserId}
+                                                       className="rounded-lg bg-red-600 px-4 py-2 text-white"
+                                                     >
+                                                       {actionLoadingUserId ? "Deleting..." : "Delete"}
+                                                     </button>
+                                                   </div>
+                                                 </Modal>
                       </div>
                     </td>
                   </tr>
