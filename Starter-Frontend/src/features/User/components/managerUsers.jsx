@@ -38,19 +38,19 @@ export default function ManagerUsers() {
     const pagination = data?.pagination || {};
 
     setUsers(data?.data || []);
-    setPage(pagination.page || data?.page || 1);
-    setTotalPages(pagination.totalPages || data?.totalPages || 1);
+    setPage(pagination.currentPage || 1);
+    setTotalPages(pagination.totalPages  || 1);
   }
 
-    // ======================
-    // Fetch users
-    // ======================
-        async function fetchUsers() { 
+  // ======================
+  // Fetch users
+  // ======================
+  async function fetchUsers(pageToFetch ) {
     setLoading(true);
     setError(null);
     try {
       const data = await getUsers({
-        page,
+        page: pageToFetch,
         limit: 5,
         sort: "-createdAt",
         email: dataInput.email || undefined,
@@ -59,39 +59,39 @@ export default function ManagerUsers() {
         isActive: dataInput.isActive || undefined,
       });
       syncPaginationResponse(data);
+      console.log("Fetched users:", data);
     } catch (err) {
       setError(err);
     } finally {
       setLoading(false);
     }
-    
   }
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(page);
   }, [page, dataInput]);
 
-  
+
   async function handleRoleChange(targetUser, nextRole) {
-  setActionLoadingUserId(targetUser._id);
+    setActionLoadingUserId(targetUser._id);
 
-  try {
-    await changeUserRole(targetUser._id, nextRole);
+    try {
+      await changeUserRole(targetUser._id, nextRole);
 
-    setUsers((prev) =>
-      prev.map((item) =>
-        item._id === targetUser._id
-          ? { ...item, role: nextRole }
-          : item
-      )
-    );
+      setUsers((prev) =>
+        prev.map((item) =>
+          item._id === targetUser._id
+            ? { ...item, role: nextRole }
+            : item
+        )
+      );
 
-    toast.success(`Role updated to ${nextRole}`);
-  } catch (err) {
-    toast.error(err.message || "Failed to update role");
-  } finally {
-    setActionLoadingUserId("");
+      toast.success(`Role updated to ${nextRole}`);
+    } catch (err) {
+      toast.error(err.message || "Failed to update role");
+    } finally {
+      setActionLoadingUserId("");
+    }
   }
-}
 
   async function handleActivationToggle(targetUser) {
     setActionLoadingUserId(targetUser._id);
@@ -112,35 +112,35 @@ export default function ManagerUsers() {
     }
   }
 
- function openDeleteModal(user) {
-   setSelectedUser(user);
- }
- 
- function closeDeleteModal() {
-   setSelectedUser(null);
- }
- 
- async function handleDelete() {
-   if (!selectedUser) return;
- 
-   setActionLoadingUserId(selectedUser._id);
- 
-   try {
-     await deleteUser(selectedUser._id);
- 
-     const nextPage = users.length === 1 && page > 1 ? page - 1 : page;
- 
-     await fetchUsers(nextPage);
- 
-     closeDeleteModal();
-     toast.success("User deleted successfully");
- 
-   } catch (err) {
-     toast.error(err.message || "Failed to delete user");
-   } finally {
-     setActionLoadingUserId("");
-   }
- }
+  function openDeleteModal(user) {
+    setSelectedUser(user);
+  }
+
+  function closeDeleteModal() {
+    setSelectedUser(null);
+  }
+
+  async function handleDelete() {
+    if (!selectedUser) return;
+
+    setActionLoadingUserId(selectedUser._id);
+
+    try {
+      await deleteUser(selectedUser._id);
+
+      const nextPage = users.length === 1 && page > 1 ? page - 1 : page;
+
+      await fetchUsers(nextPage);
+
+      closeDeleteModal();
+      toast.success("User deleted successfully");
+
+    } catch (err) {
+      toast.error(err.message || "Failed to delete user");
+    } finally {
+      setActionLoadingUserId("");
+    }
+  }
 
   async function handleApplyFilter(e) {
     e.preventDefault();
@@ -195,114 +195,114 @@ export default function ManagerUsers() {
         </h1>
 
         {/* <section className="bg-white rounded-2xl shadow-lg ring-1 ring-slate-200 overflow-hidden"> */}
-          {/* 🔍 Search Bar */}
-          <div className="mb-6 rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50 p-6">
-            <form onSubmit={handleApplyFilter} className="flex flex-col gap-4 lg:flex-row lg:items-end">
-              <div className="grid flex-1 grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-                <div className="flex flex-col gap-1">
-                  <label className="mb-1 block text-sm font-semibold text-[#545778]">Username</label>
-                  <input
+        {/* 🔍 Search Bar */}
+        <div className="mb-6 rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50 p-6">
+          <form onSubmit={handleApplyFilter} className="flex flex-col gap-4 lg:flex-row lg:items-end">
+            <div className="grid flex-1 grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <div className="flex flex-col gap-1">
+                <label className="mb-1 block text-sm font-semibold text-[#545778]">Username</label>
+                <input
                   type="text"
                   value={usernameValue}
                   onChange={(event) => setUsernameValue(event.target.value)}
                   placeholder="Search by username"
                   className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                 />
-                </div>
+              </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="mb-1 block text-sm font-semibold text-[#545778]">Email</label>
-                  <input
+              <div className="flex flex-col gap-1">
+                <label className="mb-1 block text-sm font-semibold text-[#545778]">Email</label>
+                <input
                   type="email"
                   value={emailValue}
                   onChange={(event) => setEmailValue(event.target.value)}
                   placeholder="name@example.com"
                   className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                 />
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="mb-1 block text-sm font-semibold text-[#545778]">Role</label>
-                  <select
-                    value={roleValue}
-                    onChange={(event) => setRoleValue(event.target.value)}
-                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-                  >
-                    <option value="">All roles</option>
-                    <option value="user">User</option>
-                    <option value="manager">manager</option>
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="mb-1 block text-sm font-semibold text-[#545778]">Status</label>
-                  <select
-                    value={statusValue}
-                    onChange={(event) => setStatusValue(event.target.value)}
-                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-                  >
-                    <option value="">All status</option>
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                  </select>
-                </div>
               </div>
 
-              <button
-                type="submit"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-3 font-semibold text-white shadow-md transition-all hover:from-indigo-700 hover:to-indigo-800 hover:shadow-lg active:scale-95 lg:whitespace-nowrap"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              <div className="flex flex-col gap-1">
+                <label className="mb-1 block text-sm font-semibold text-[#545778]">Role</label>
+                <select
+                  value={roleValue}
+                  onChange={(event) => setRoleValue(event.target.value)}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-                Search
-              </button>
-
-              <button
-                type="button"
-                onClick={handleClearFilter}
-                className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-3 font-medium text-gray-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95"
-              >
-                Clear
-              </button>
-            </form>
-
-            {(dataInput.username || dataInput.email || dataInput.role || dataInput.isActive) && (
-              <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
-                <span className="text-gray-600">Filtering by:</span>
-                {dataInput.username && (
-                  <span className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 font-medium text-indigo-700">
-                    user: {dataInput.username}
-                  </span>
-                )}
-                {dataInput.email && (
-                  <span className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 font-medium text-indigo-700">
-                    email: {dataInput.email}
-                  </span>
-                )}
-                {dataInput.role && (
-                  <span className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 font-medium text-indigo-700">
-                    role: {dataInput.role}
-                  </span>
-                )}
-                {dataInput.isActive && (
-                  <span className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 font-medium text-indigo-700">
-                    status: {dataInput.isActive === "true" ? "active" : "inactive"}
-                  </span>
-                )}
+                  <option value="">All roles</option>
+                  <option value="user">User</option>
+                  <option value="manager">manager</option>
+                </select>
               </div>
-            )}
-          </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="mb-1 block text-sm font-semibold text-[#545778]">Status</label>
+                <select
+                  value={statusValue}
+                  onChange={(event) => setStatusValue(event.target.value)}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                >
+                  <option value="">All status</option>
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-3 font-semibold text-white shadow-md transition-all hover:from-indigo-700 hover:to-indigo-800 hover:shadow-lg active:scale-95 lg:whitespace-nowrap"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              Search
+            </button>
+
+            <button
+              type="button"
+              onClick={handleClearFilter}
+              className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-3 font-medium text-gray-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95"
+            >
+              Clear
+            </button>
+          </form>
+
+          {(dataInput.username || dataInput.email || dataInput.role || dataInput.isActive) && (
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+              <span className="text-gray-600">Filtering by:</span>
+              {dataInput.username && (
+                <span className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 font-medium text-indigo-700">
+                  user: {dataInput.username}
+                </span>
+              )}
+              {dataInput.email && (
+                <span className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 font-medium text-indigo-700">
+                  email: {dataInput.email}
+                </span>
+              )}
+              {dataInput.role && (
+                <span className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 font-medium text-indigo-700">
+                  role: {dataInput.role}
+                </span>
+              )}
+              {dataInput.isActive && (
+                <span className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 font-medium text-indigo-700">
+                  status: {dataInput.isActive === "true" ? "active" : "inactive"}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
 
 
         <div className="overflow-x-auto rounded-2xl border border-[#d7dcf2] bg-white shadow-lg">
@@ -332,32 +332,30 @@ export default function ManagerUsers() {
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`inline-flex items-center rounded-full px-4 py-2 text-xs font-bold ${
-                          item.isActive
+                        className={`inline-flex items-center rounded-full px-4 py-2 text-xs font-bold ${item.isActive
                             ? "bg-green-50 text-green-700 border border-green-200"
                             : "bg-red-50 text-red-700 border border-red-200"
-                        }`}
+                          }`}
                       >
-                        <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                          item.isActive ? "bg-green-500" : "bg-red-500"
-                        }`}></span>
+                        <span className={`inline-block w-2 h-2 rounded-full mr-2 ${item.isActive ? "bg-green-500" : "bg-red-500"
+                          }`}></span>
                         {item.isActive ? "Active" : "Inactive"}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                        <div className="flex flex-wrap gap-2 justify-center">
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        <div className="flex gap-2">
                           <select
                             value={item.role}
                             onChange={(e) => handleRoleChange(item, e.target.value)}
                             disabled={actionBusy || isCurrentUser}
                             className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm focus:border-[#3d3fa5] focus:outline-none focus:ring-2 focus:ring-[#3d3fa5] disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100 hover:border-gray-400 transition-colors"
                           >
-                          <option value="user">User</option>
-                          <option value="manager">Manager</option>
-                          <option value="admin">Admin</option>
-                        </select>
-  </div>
+                            <option value="user">User</option>
+                            <option value="manager">Manager</option>
+                            <option value="admin">Admin</option>
+                          </select>
+                        </div>
 
                         <button
                           type="button"
@@ -369,43 +367,43 @@ export default function ManagerUsers() {
                         </button>
 
                         <button
-                                                 type="button"
-                                                 onClick={() => openDeleteModal(item)}
-                                                 disabled={actionBusy || isCurrentUser}
-                                                 className="rounded-lg bg-linear-to-r from-[#d94e5b] to-[#c53a56] hover:from-[#bf3f52] hover:to-[#b02c48] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:shadow-lg transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-                                               >
-                                                 Delete
-                                               </button>
-                                               <Modal
-                                                   isOpen={!!selectedUser}
-                                                   onClose={closeDeleteModal}
-                                                   title="Delete User"
-                                                 >
-                                                   <p className="text-gray-600">
-                                                     Are you sure you want to delete{" "}
-                                                     <span className="font-semibold">
-                                                       {selectedUser?.username || selectedUser?.email}
-                                                     </span>
-                                                     ?
-                                                   </p>
-                       
-                                                   <div className="mt-6 flex justify-end gap-3">
-                                                     <button
-                                                       onClick={closeDeleteModal}
-                                                       className="rounded-lg border px-4 py-2"
-                                                     >
-                                                       Cancel
-                                                     </button>
-                       
-                                                     <button
-                                                       onClick={handleDelete}
-                                                       disabled={!!actionLoadingUserId}
-                                                       className="rounded-lg bg-red-600 px-4 py-2 text-white"
-                                                     >
-                                                       {actionLoadingUserId ? "Deleting..." : "Delete"}
-                                                     </button>
-                                                   </div>
-                                                 </Modal>
+                          type="button"
+                          onClick={() => openDeleteModal(item)}
+                          disabled={actionBusy || isCurrentUser}
+                          className="rounded-lg bg-linear-to-r from-[#d94e5b] to-[#c53a56] hover:from-[#bf3f52] hover:to-[#b02c48] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:shadow-lg transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+                        >
+                          Delete
+                        </button>
+                        <Modal
+                          isOpen={!!selectedUser}
+                          onClose={closeDeleteModal}
+                          title="Delete User"
+                        >
+                          <p className="text-gray-600">
+                            Are you sure you want to delete{" "}
+                            <span className="font-semibold">
+                              {selectedUser?.username || selectedUser?.email}
+                            </span>
+                            ?
+                          </p>
+
+                          <div className="mt-6 flex justify-end gap-3">
+                            <button
+                              onClick={closeDeleteModal}
+                              className="rounded-lg border px-4 py-2"
+                            >
+                              Cancel
+                            </button>
+
+                            <button
+                              onClick={handleDelete}
+                              disabled={!!actionLoadingUserId}
+                              className="rounded-lg bg-red-600 px-4 py-2 text-white"
+                            >
+                              {actionLoadingUserId ? "Deleting..." : "Delete"}
+                            </button>
+                          </div>
+                        </Modal>
                       </div>
                     </td>
                   </tr>

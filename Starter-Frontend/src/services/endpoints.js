@@ -15,6 +15,7 @@ export const GET_PROFILE = `${AUTH_BASE}/me`;
 export const UPDATE_PROFILE = `${AUTH_BASE}/me`;
 export const RESET_MY_PASSWORD = `${AUTH_BASE}/me/reset-password`;
 export const GET_USERS = `${AUTH_BASE}`;
+export const ANALYZE_USER = `${AUTH_BASE}/me/ai-analysis`;
 export const DELETE_USER = (userId) => `${AUTH_BASE}/delete/${userId}`;
 export const CHANGE_USER_ROLE = (userId) => `${AUTH_BASE}/${userId}/role`;
 export const ACTIVATE_USER = (userId) => `${AUTH_BASE}/activate/${userId}`;

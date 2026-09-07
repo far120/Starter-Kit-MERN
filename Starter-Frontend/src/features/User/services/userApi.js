@@ -8,6 +8,7 @@ import {
     GET_USERS,
     RESET_MY_PASSWORD,
     UPDATE_PROFILE,
+    ANALYZE_USER
 } from "../../../services/endpoints.js";
 
 import normalizeError from "../../../services/NormalizeError.js";
@@ -90,4 +91,13 @@ export async function getUserLogs(params) {
         throw normalizeError(error, "Failed to fetch user logs");
     }
 }
+export async function analyzeUser() {
+    try {
+        const response = await api.get(ANALYZE_USER);
+        return response.data;
+    } catch (error) {
+        throw normalizeError(error, "Failed to analyze user");
+    }
+}
+
 

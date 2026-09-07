@@ -3,9 +3,8 @@ const asynchandler = require('express-async-handler');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const logger = require('../config/WistonLogger');
-const paginate = require('../utils/paginate');
-
-
+const APIFeatures = require('../utils/api-features');
+const { analyzeUser } = require('../services/domain/user/userAI.service');
 
 
 /**
@@ -19,20 +18,6 @@ exports.CreateUser = asynchandler(async (req, res) => {
      if (req.file) {
     req.body.image = req.file.filename;
     }
-    // way 1
-    // const user = new User({
-    //     name: req.body.name,
-    //     email: req.body.email,
-    //     password: req.body.password,
-    //     role: req.body.role
-    // })
-    // const savedUser = await user.save();
-    
-    // way 2
-    // const user = new User(req.body);
-    // const savedUser = await user.save();
-    
-    // way 3
     const savedUser = await User.create(req.body);
     savedUser.password = undefined;
     logger.info("User created successfully");
@@ -98,27 +83,22 @@ exports.LogoutUser = asynchandler(async (req, res) => {
  * @access  private (manager)
  */
 exports.GetUsers = asynchandler(async (req, res) => {
-    logger.info(`Retrieving all users by manager: ${req.user.id}`);
-    // const users = await User.find().select("-password");
-    // res.status(200).json(users);
+  logger.info(`Retrieving all users by manager: ${req.user.id}`);
 
-// with pagination i want use paginate middleware and make select -password in it
-   const filter = {};
-if (req.query.email) filter.email = req.query.email;
-if (req.query.username) filter.username = { $regex: req.query.username, $options: "i" };
-if (req.query.role) filter.role = req.query.role;
-if (req.query.isActive !== undefined) filter.isActive = req.query.isActive === "true";
+  const features = new APIFeatures(User.find(), req.query)
+    .filter()
+    .search()
+    .sort();
+  await features.paginate();
 
-const result = await paginate({
-  model: User,
-  page: req.query.page,
-  limit: req.query.limit,
-  filter,
-  sort: req.query.sort,
-  populate: req.query.populate,
-  select: "-password",
-});
-   res.status(200).json(result);
+  const users = await features.query;
+
+  res.status(200).json({
+    status: "success",
+    pagination: features.pagination,
+    results: users.length,
+    data: users
+  });
 });
 
 /**
@@ -146,13 +126,6 @@ exports.UpdateMe = asynchandler(async (req, res) => {
      if (req.file) {
     req.body.image = req.file.filename;
     }
-    // way 1
-    // const updatedUser = await User.findByIdAndUpdate(req.user.id,$.set({
-    //     username: req.body.name,
-    //     email: req.body.email,
-    //     password: req.body.password,
-    // }), { new: true });
-    // way 2
     const updatedUser = await User.findByIdAndUpdate(req.user.id, req.body, { returnDocument: "after"  }).select("-password");
     logger.info(`User details updated successfully: ${req.user.id}`);
     res.status(200).json(updatedUser);
@@ -252,4 +225,14 @@ exports.ActivateUser = asynchandler(async (req, res) => {
 
   
 
+
+exports.AnalyzeUser = asynchandler(async (req, res) => {
+    
+    const result = await analyzeUser(req.user.id);
+
+    res.status(200).json({
+        status: "success",
+        data: result
+    });
+});
 

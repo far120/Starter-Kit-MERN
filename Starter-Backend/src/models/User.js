@@ -45,7 +45,15 @@ const userSchema = new mongoose.Schema({
     passwordResetExpires: Date
 
 }, {
-    timestamps: true
+  timestamps: true,
+
+  toJSON: {
+    virtuals: true
+  },
+
+  toObject: {
+    virtuals: true
+  }
 });
 
 // pre save make email lowercase
@@ -53,6 +61,12 @@ userSchema.pre('save', function () {
     if (this.email) {
         this.email = this.email.toLowerCase();
     }
+})
+
+userSchema.virtual("UserLog",{
+    ref: "UserLog",
+    localField: "_id",
+    foreignField: "user"
 })
 
 const user = mongoose.model("User", userSchema);

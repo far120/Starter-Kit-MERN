@@ -19,21 +19,21 @@ export default function ManagerUserLogs() {
     const pagination = data?.pagination || {};
 
     setLogs(data?.data || []);
-    setPage(pagination.page || data?.page || 1);
-    setTotalPages(pagination.totalPages || data?.totalPages || 1);
-    setTotalResults(pagination.totalDocuments || data?.totalResults || 0);
+    setPage(pagination.currentPage ||  1);
+    setTotalPages(pagination.totalPages  || 1);
+    setTotalResults(pagination.totalProducts  || 0);
   }
 
   // ======================
   // Fetch Logs
   // ======================
   useEffect(() => {
-    const fetchLogs = async () => {
+    const fetchLogs = async (pageToFetch) => {
       try {
         setLoading(true);
         setError(null);
         const data = await getUserLogs({
-          page,
+          page: pageToFetch ,
           limit: 5,
           sort: "-createdAt",
           email: emailFilter || undefined,
@@ -48,7 +48,7 @@ export default function ManagerUserLogs() {
       }
     };
 
-    fetchLogs();
+    fetchLogs(page);
   }, [page, emailFilter]);
 
   // ======================

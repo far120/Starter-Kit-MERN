@@ -8,6 +8,7 @@ const authandicate = require('../middlewares/authenticate.middleware');
 // const paginate = require('../middlewares/paginate.middleware');
 const User = require('../models/User');
 const upload = require('../middlewares/uploadMiddleware');
+const aiRateLimiter = require('../middlewares/airateLimit');
 
 
 /**
@@ -95,6 +96,14 @@ router.patch("/:userId/role", authorize(['manager']), userController.ChangeUserR
  */
 router.patch("/activate/:userId", authorize(['manager']), userController.ActivateUser);
 
+
+/**
+ * @desc   analyze user
+ * @route   GET /api/users/analyze/me
+ * @method  GET
+ * @access  private (me)
+ */
+router.get("/me/ai-analysis", authandicate, aiRateLimiter, userController.AnalyzeUser);
 
 
 module.exports = router;
